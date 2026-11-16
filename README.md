@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# pleazure.cc — Website Rental Sepeda (Fase 1)
 
-## Getting Started
+Next.js 16 (App Router) + TypeScript + Tailwind v4 + Prisma 6 + MySQL 8.
 
-First, run the development server:
+## Menjalankan
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env          # isi DATABASE_URL, AUTH_SECRET (≥32 karakter), CRON_SECRET
+npx prisma migrate dev        # buat tabel
+npm run db:seed               # data contoh + akun
+npm run dev                   # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Akun contoh: `admin@pleazure.cc / admin12345` (admin), `staf@pleazure.cc / staf12345` (staf).
+Tarif, jumlah unit, nomor WA, dan rekening di seed masih **placeholder**. Ubah di Dashboard → Armada & Pengaturan.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Isi Fase 1
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Area | Halaman / endpoint |
+| --- | --- |
+| Landing, katalog, stok real-time, kalkulator, S&K, peta | `/`, `/sepeda`, `/sepeda/[slug]`, `/syarat` |
+| Booking + hold unit (jam mulai + 30 menit) | `POST /api/bookings` (transaction + `SELECT … FOR UPDATE`) |
+| Status & invoice ber-QR, PDF | `/booking/[token]`, `/api/invoices/[token]/pdf` |
+| Cek booking (kode + no. WA) | `/cek-booking` |
+| Login staf/admin | `/admin/login` |
+| Ringkasan hari ini, daftar & detail booking, Konfirmasi Bayar, batal | `/admin`, `/admin/booking` |
+| Scanner check-in / check-out + denda | `/admin/scan` (kamera HP atau ketik kode) |
+| Armada (model, unit, tarif) & pengaturan denda/hold | `/admin/armada`, `/admin/pengaturan` (khusus admin) |
+| Expire hold | `GET /api/cron/expire-holds` dengan header `Authorization: Bearer $CRON_SECRET` |
 
-## Learn More
+Logika harga ada di satu tempat (`src/lib/pricing.ts`) dan dipakai bersama oleh kalkulator dan backend.
 
-To learn more about Next.js, take a look at the following resources:
+## Cron
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Panggil tiap 1 menit, misalnya `* * * * * curl -s -H "Authorization: Bearer $CRON_SECRET" https://domain/api/cron/expire-holds`.
+`vercel.json` sudah menyertakan jadwal ini, tetapi paket Vercel Hobby hanya mengizinkan cron harian.
+Tanpa cron pun stok tetap benar: hold yang sudah lewat tidak dihitung, dan booking di-expire saat dibaca.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Fase 2: payment gateway (DITUNDA)
 
-## Deploy on Vercel
+Kode ada di `src/lib/payment/`. `manual.ts` aktif sekarang. Kerangka `qris-dinamis.ts` (dengan TODO) dan
+`/api/webhooks/payment` dimatikan selama `PAYMENT_GATEWAY_ENABLED` tidak bernilai `"true"`.
+Alur booking hanya memanggil interface `createPayment()` / `handleNotification()`, jadi alurnya tidak perlu diubah.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Catatan produksi
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Rate limit login dan booking disimpan di memori, cukup untuk 1 instance/VPS. Untuk multi-instance, ganti dengan Redis.
+- Foto sepeda berupa URL. Kalau kosong, ilustrasi berwarna per kategori ditampilkan otomatis.
+- Scanner kamera membutuhkan HTTPS (atau localhost).
