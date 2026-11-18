@@ -6,7 +6,7 @@ import { BUSINESS, waLink } from "@/lib/constants";
 
 export function SiteFooter({ openTime, closeTime, whatsapp }: { openTime: string; closeTime: string; whatsapp: string }) {
   return (
-    <footer className="relative mt-auto overflow-hidden bg-ink text-white">
+    <footer className="relative mt-auto overflow-hidden bg-ink pb-[calc(6rem+env(safe-area-inset-bottom))] text-white md:pb-0">
       <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-pink/30 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-violet/40 blur-3xl" />
       <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">

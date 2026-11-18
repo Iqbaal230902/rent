@@ -12,6 +12,7 @@ import { BikeVisual } from "./bike-art";
 import { RentalWindowPicker, useRentalWindow, windowToQuery, type WindowValue } from "./rental-window";
 import { useAvailability } from "./use-availability";
 import { Alert } from "@/components/ui/alert";
+import { RevealCard } from "@/components/motion/reveal";
 
 export function CatalogBrowser({
   models,
@@ -79,7 +80,7 @@ export function CatalogBrowser({
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-        {shown.map((m) => {
+        {shown.map((m, i) => {
           const a = avail?.[m.id];
           const quote = windowError
             ? null
@@ -87,51 +88,52 @@ export function CatalogBrowser({
           const soldOut = a ? a.available === 0 : false;
           const c = CATEGORIES[m.category];
           return (
-            <article
-              key={m.id}
-              className="group relative flex flex-col overflow-hidden rounded-[28px] bg-white ring-1 ring-line shadow-pop transition hover:-translate-y-1 hover:shadow-[0_24px_48px_-20px_rgba(22,15,46,.35)]"
-            >
-              <div
-                className="relative aspect-[3/2] overflow-hidden"
-                style={{ background: `linear-gradient(135deg, ${c.from}1f, ${c.to}33)` }}
+            <RevealCard key={`${cat}-${m.id}`} index={i % 3}>
+              <article
+                className="group relative flex h-full flex-col overflow-hidden rounded-[28px] bg-white ring-1 ring-line shadow-pop transition hover:-translate-y-1 hover:shadow-[0_24px_48px_-20px_rgba(22,15,46,.35)]"
               >
-                <BikeVisual category={m.category} photos={m.photos} name={m.name} className="transition duration-500 group-hover:scale-105" />
-                <span className={cn("absolute left-4 top-4 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset", c.chip)}>
-                  {c.label}
-                </span>
-                <AvailabilityPill loading={loading && !a} available={a?.available} total={a?.totalUnits} disabled={!!windowError} />
-              </div>
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="text-xl font-extrabold">{m.name}</h3>
-                {m.frameSize && <p className="mt-0.5 text-sm text-muted">Ukuran {m.frameSize}</p>}
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <div className="rounded-2xl bg-cream px-3 py-2">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Per jam</p>
-                    <p className="font-display text-lg font-extrabold">{rupiah(m.pricePerHour)}</p>
+                <div
+                  className="relative aspect-[3/2] overflow-hidden"
+                  style={{ background: `linear-gradient(135deg, ${c.from}1f, ${c.to}33)` }}
+                >
+                  <BikeVisual category={m.category} photos={m.photos} name={m.name} className="transition duration-500 group-hover:scale-105" />
+                  <span className={cn("absolute left-4 top-4 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset", c.chip)}>
+                    {c.label}
+                  </span>
+                  <AvailabilityPill loading={loading && !a} available={a?.available} total={a?.totalUnits} disabled={!!windowError} />
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <h3 className="text-xl font-extrabold">{m.name}</h3>
+                  {m.frameSize && <p className="mt-0.5 text-sm text-muted">Ukuran {m.frameSize}</p>}
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <div className="rounded-2xl bg-cream px-3 py-2">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Per jam</p>
+                      <p className="font-display text-lg font-extrabold">{rupiah(m.pricePerHour)}</p>
+                    </div>
+                    <div className="rounded-2xl bg-cream px-3 py-2">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Per hari</p>
+                      <p className="font-display text-lg font-extrabold">{rupiah(m.pricePerDay)}</p>
+                    </div>
                   </div>
-                  <div className="rounded-2xl bg-cream px-3 py-2">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Per hari</p>
-                    <p className="font-display text-lg font-extrabold">{rupiah(m.pricePerDay)}</p>
+                  <div className="mt-4 flex items-end justify-between gap-3 border-t border-dashed border-line pt-4">
+                    <div>
+                      <p className="text-xs text-muted">Estimasi rentang ini</p>
+                      <p className={cn("font-display text-xl font-extrabold", c.accent)}>{quote ? rupiah(quote.total) : "—"}</p>
+                    </div>
+                    <Link
+                      href={`/sepeda/${m.slug}?${windowToQuery(value)}`}
+                      aria-disabled={soldOut}
+                      className={cn(
+                        "inline-flex h-11 items-center gap-1.5 rounded-2xl px-4 text-sm font-bold transition",
+                        soldOut ? "bg-zinc-100 text-zinc-500" : "bg-ink text-white hover:bg-ink-2",
+                      )}
+                    >
+                      {soldOut ? "Lihat jadwal" : "Pilih"} <ArrowRight className="h-4 w-4" />
+                    </Link>
                   </div>
                 </div>
-                <div className="mt-4 flex items-end justify-between gap-3 border-t border-dashed border-line pt-4">
-                  <div>
-                    <p className="text-xs text-muted">Estimasi rentang ini</p>
-                    <p className={cn("font-display text-xl font-extrabold", c.accent)}>{quote ? rupiah(quote.total) : "—"}</p>
-                  </div>
-                  <Link
-                    href={`/sepeda/${m.slug}?${windowToQuery(value)}`}
-                    aria-disabled={soldOut}
-                    className={cn(
-                      "inline-flex h-11 items-center gap-1.5 rounded-2xl px-4 text-sm font-bold transition",
-                      soldOut ? "bg-zinc-100 text-zinc-500" : "bg-ink text-white hover:bg-ink-2",
-                    )}
-                  >
-                    {soldOut ? "Lihat jadwal" : "Pilih"} <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            </article>
+              </article>
+            </RevealCard>
           );
         })}
       </div>

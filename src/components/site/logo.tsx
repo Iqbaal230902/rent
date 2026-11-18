@@ -1,16 +1,19 @@
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 export function LogoMark({ className }: { className?: string }) {
+  // Unique per instance: a duplicate id inside a display:none copy (e.g. the md:hidden mobile bar) breaks the gradient.
+  const gid = `lm-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <svg viewBox="0 0 40 40" className={cn("h-9 w-9", className)} aria-hidden>
       <defs>
-        <linearGradient id="lm" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#ff6b2c" />
           <stop offset=".55" stopColor="#ff2e7e" />
           <stop offset="1" stopColor="#7c3aed" />
         </linearGradient>
       </defs>
-      <rect width="40" height="40" rx="12" fill="url(#lm)" />
+      <rect width="40" height="40" rx="12" fill={`url(#${gid})`} />
       <circle cx="13" cy="25" r="6.5" fill="none" stroke="white" strokeWidth="2.6" />
       <circle cx="27" cy="25" r="6.5" fill="none" stroke="white" strokeWidth="2.6" />
       <path d="M13 25 L19 14 H26 L27 25 M19 14 L22 25" stroke="white" strokeWidth="2.6" fill="none" strokeLinejoin="round" strokeLinecap="round" />

@@ -16,11 +16,12 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#160f2e",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${jakarta.variable} ${bricolage.variable} h-full`}>
+    <html lang="id" data-scroll-behavior="smooth" className={`${jakarta.variable} ${bricolage.variable} h-full`}>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );

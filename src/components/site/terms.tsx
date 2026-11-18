@@ -1,6 +1,7 @@
 import { AlarmClock, Ban, CreditCard, IdCard, ShieldAlert, Timer } from "lucide-react";
 import type { Settings } from "@/lib/settings";
 import { rupiah } from "@/lib/format";
+import { RevealCard } from "@/components/motion/reveal";
 
 export function termsItems(s: Settings) {
   return [
@@ -46,21 +47,22 @@ export function termsItems(s: Settings) {
 export function TermsList({ settings, compact }: { settings: Settings; compact?: boolean }) {
   return (
     <div className={compact ? "grid gap-3 sm:grid-cols-2" : "grid gap-4"}>
-      {termsItems(settings).map((t) => (
-        <details
-          key={t.title}
-          className="group rounded-3xl bg-cream p-5 ring-1 ring-line open:bg-white open:shadow-pop"
-          open={!compact}
-        >
-          <summary className="flex cursor-pointer list-none items-center gap-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-white" style={{ background: t.color }}>
-              <t.icon className="h-5 w-5" />
-            </span>
-            <span className="font-display text-lg font-extrabold leading-tight">{t.title}</span>
-            <span className="ml-auto text-xl font-bold text-muted transition group-open:rotate-45">+</span>
-          </summary>
-          <p className="mt-3 text-sm leading-relaxed text-ink/75">{t.body}</p>
-        </details>
+      {termsItems(settings).map((t, i) => (
+        <RevealCard key={t.title} index={compact ? i % 2 : 0}>
+          <details
+            className="group h-full rounded-3xl bg-cream p-5 ring-1 ring-line open:bg-white open:shadow-pop"
+            open={!compact}
+          >
+            <summary className="flex cursor-pointer list-none items-center gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-white" style={{ background: t.color }}>
+                <t.icon className="h-5 w-5" />
+              </span>
+              <span className="font-display text-lg font-extrabold leading-tight">{t.title}</span>
+              <span className="ml-auto text-xl font-bold text-muted transition group-open:rotate-45">+</span>
+            </summary>
+            <p className="mt-3 text-sm leading-relaxed text-ink/75">{t.body}</p>
+          </details>
+        </RevealCard>
       ))}
     </div>
   );

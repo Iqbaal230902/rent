@@ -23,6 +23,7 @@ import { BikeArt } from "@/components/site/bike-art";
 import { PriceCalculator } from "@/components/site/price-calculator";
 import { WhatsappIcon } from "@/components/site/social-icons";
 import { TermsList } from "@/components/site/terms";
+import { RevealCard } from "@/components/motion/reveal";
 
 export default async function HomePage() {
   const [{ settings, rules, todayDate, initialWindow }, models] = await Promise.all([
@@ -40,7 +41,7 @@ export default async function HomePage() {
   return (
     <>
       {/* ============ HERO (A-01) ============ */}
-      <section className="relative -mt-18 overflow-hidden pt-18">
+      <section id="beranda" className="relative -mt-18 overflow-hidden pt-18">
         <div className="pointer-events-none absolute inset-0 bg-dots opacity-60 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
         <div className="pointer-events-none absolute -left-32 top-10 h-[420px] w-[420px] rounded-full bg-orange/30 blur-[90px]" />
         <div className="pointer-events-none absolute right-[-120px] top-[-60px] h-[480px] w-[480px] rounded-full bg-violet/30 blur-[100px]" />
@@ -63,7 +64,7 @@ export default async function HomePage() {
               dan ambil sepeda cukup dengan QR invoice.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/sepeda" className={buttonClass("brand", "lg")}>
+              <Link href="#kategori" className={buttonClass("brand", "lg")}>
                 Sewa Sekarang <ArrowRight className="h-5 w-5" />
               </Link>
               <Link href="#kalkulator" className={buttonClass("outline", "lg")}>
@@ -157,19 +158,19 @@ export default async function HomePage() {
       </div>
 
       {/* ============ KATEGORI (A-02) ============ */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      <section id="kategori" className="mx-auto max-w-7xl md:scroll-mt-24 px-4 py-20 sm:px-6">
         <SectionHead eyebrow="Katalog" title="Pilih gaya gowesmu" lead="Empat kategori, semua unit dirawat bengkel sendiri sebelum disewakan." />
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {CATEGORY_ORDER.map((cat) => {
+          {CATEGORY_ORDER.map((cat, i) => {
             const c = CATEGORIES[cat];
             const from = fromPrice(cat);
             return (
-              <Link
-                key={cat}
-                href={`/sepeda?kategori=${cat}`}
-                className="group relative overflow-hidden rounded-[28px] p-5 text-white shadow-pop transition hover:-translate-y-1.5"
-                style={{ background: `linear-gradient(150deg, ${c.from}, ${c.to})` }}
-              >
+              <RevealCard key={cat} index={i}>
+                <Link
+                  href={`/sepeda?kategori=${cat}`}
+                  className="group relative block h-full overflow-hidden rounded-[28px] p-5 text-white shadow-pop transition hover:-translate-y-1.5"
+                  style={{ background: `linear-gradient(150deg, ${c.from}, ${c.to})` }}
+                >
                 <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/15" />
                 <p className="font-display text-2xl font-extrabold">{c.label}</p>
                 <p className="mt-1 text-sm text-white/85">{c.blurb}</p>
@@ -190,14 +191,15 @@ export default async function HomePage() {
                     <ArrowRight className="h-4 w-4" />
                   </span>
                 </div>
-              </Link>
+                </Link>
+              </RevealCard>
             );
           })}
         </div>
       </section>
 
       {/* ============ CARA SEWA ============ */}
-      <section id="cara-sewa" className="scroll-mt-24 bg-white py-20">
+      <section id="cara-sewa" className="md:scroll-mt-24 bg-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead eyebrow="Cara sewa" title="Dari klik sampai gowes, 5 langkah" />
           <ol className="mt-12 grid gap-4 md:grid-cols-5">
@@ -208,21 +210,21 @@ export default async function HomePage() {
               { icon: QrCode, t: "Invoice ber-QR", d: "Terbit otomatis setelah lunas. Bisa diunduh PDF.", c: "#0891b2" },
               { icon: Bike, t: "Scan & gowes", d: "Tunjukkan QR + E-KTP asli di store. Kembalikan, selesai!", c: "#16a34a" },
             ].map((s, i) => (
-              <li key={s.t} className="relative rounded-[28px] bg-cream p-5 ring-1 ring-line">
+              <RevealCard as="li" key={s.t} index={i} className="relative rounded-[28px] bg-cream p-5 ring-1 ring-line">
                 <span className="absolute right-5 top-4 font-display text-5xl font-extrabold text-ink/5">{i + 1}</span>
                 <span className="grid h-12 w-12 place-items-center rounded-2xl text-white" style={{ background: s.c }}>
                   <s.icon className="h-6 w-6" />
                 </span>
                 <p className="mt-4 font-display text-lg font-extrabold leading-tight">{s.t}</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.d}</p>
-              </li>
+              </RevealCard>
             ))}
           </ol>
         </div>
       </section>
 
       {/* ============ KALKULATOR (A-04) ============ */}
-      <section id="kalkulator" className="relative scroll-mt-24 overflow-hidden py-20">
+      <section id="kalkulator" className="relative md:scroll-mt-24 overflow-hidden py-20">
         <div className="pointer-events-none absolute right-0 top-20 h-80 w-80 rounded-full bg-sky/20 blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHead
@@ -244,20 +246,20 @@ export default async function HomePage() {
             { icon: ShieldCheck, t: "Tanpa double booking", d: "Stok dikunci di sistem saat kamu booking.", c: "bg-pink" },
             { icon: QrCode, t: "Invoice digital", d: "Bukti sewa jelas, cukup tunjukkan QR.", c: "bg-violet" },
             { icon: Undo2, t: "Kembali fleksibel", d: `Toleransi ${settings.graceMinutes} menit sebelum denda berlaku.`, c: "bg-emerald-500" },
-          ].map((f) => (
-            <div key={f.t} className="rounded-[28px] bg-white p-5 ring-1 ring-line">
+          ].map((f, i) => (
+            <RevealCard key={f.t} index={i} className="rounded-[28px] bg-white p-5 ring-1 ring-line">
               <span className={`grid h-11 w-11 place-items-center rounded-2xl text-white ${f.c}`}>
                 <f.icon className="h-5 w-5" />
               </span>
               <p className="mt-4 font-display text-lg font-extrabold">{f.t}</p>
               <p className="mt-1 text-sm text-muted">{f.d}</p>
-            </div>
+            </RevealCard>
           ))}
         </div>
       </section>
 
       {/* ============ S&K (A-05) ============ */}
-      <section className="bg-white py-20">
+      <section id="aturan" className="bg-white py-20 md:scroll-mt-24">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.4fr]">
           <div>
             <SectionHead eyebrow="Syarat & ketentuan" title="Biar sama-sama enak" align="left" />
@@ -271,7 +273,7 @@ export default async function HomePage() {
       </section>
 
       {/* ============ LOKASI (A-06) ============ */}
-      <section id="lokasi" className="scroll-mt-24 py-20">
+      <section id="lokasi" className="md:scroll-mt-24 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid overflow-hidden rounded-[32px] bg-ink text-white shadow-pop lg:grid-cols-[1fr_1.3fr]">
             <div className="relative p-8 sm:p-10">
